@@ -6,8 +6,7 @@ const getAllTasks = async (req, res)=>{
         res.json(allTasks.rows);
         //res.send('creating a task');
     } catch (error) {
-        //console.log(error);
-        res.json({error: error.message});
+        next(error);
     }
     
 }
@@ -26,7 +25,7 @@ const getTask = async (req, res)=>{
        
     } catch (error) {
    
-        res.json({error: error.message});
+        next(error);
     }
     res.send('retrieving a single task');
 }
@@ -42,12 +41,12 @@ const createTask = async (req, res)=>{
         res.json(result.rows[0]);
         //res.send('creating a task');
     } catch (error) {
-        //console.log(error);
-        res.json({error: error.message});
+        next(error);
     }
 }
 
 const deleteTask = async (req, res)=>{
+   try {
     const { id } = req.params;
     const result = await pool.query('DELETE FROM tasks WHERE id = $1', [id]);
     
@@ -58,12 +57,16 @@ const deleteTask = async (req, res)=>{
     }
 
     return res.sendStatus(204);
-    
-   // res.send('deleting a task');
+   
+
+   } catch (error) {
+    next(error); 
+   }
 }
 
 const updateTask = async (req, res)=>{
-    const { id } = req.params;
+    try {
+        const { id } = req.params;
     const {title, description} = req.body;
 
     const result = await pool.query('UPDATE tasks SET title = $1, description = $2 WHERE id = $3 RETURNING *', [
@@ -78,6 +81,9 @@ const updateTask = async (req, res)=>{
     }
 
     return res.json(result.rows[0]);
+    } catch (error) {
+        next(error);
+    }
     
 }
 
